@@ -20,51 +20,58 @@ public class CustomPlayerUiController extends AbstractYouTubePlayerListener {
     private final YouTubePlayerTracker playerTracker;
     private final YouTubePlayer youTubePlayer;
     private final YouTubePlayerView youTubePlayerView;
-    private boolean fullscreen = false;
+    private boolean isFullScreen = false;
 
-    CustomPlayerUiController(View customPlayerUi, YouTubePlayer youTubePlayer, YouTubePlayerView youTubePlayerView) {
+    CustomPlayerUiController(View controlsUi, YouTubePlayer youTubePlayer, YouTubePlayerView youTubePlayerView) {
         this.youTubePlayer = youTubePlayer;
         this.youTubePlayerView = youTubePlayerView;
-
         playerTracker = new YouTubePlayerTracker();
         youTubePlayer.addListener(playerTracker);
 
-        initViews(customPlayerUi);
+        initViews(controlsUi);
     }
 
-    private void initViews(View playerUi) {
-        View panel = playerUi.findViewById(R.id.panel);
-        RelativeLayout relativeLayout = playerUi.findViewById(R.id.root);
-        YouTubePlayerSeekBar youTubePlayerSeekBar = playerUi.findViewById(R.id.youtube_player_seekbar);
-        ImageButton playPauseButton = playerUi.findViewById(R.id.play_pause_button);
-        ImageButton enterExitFullscreenButton = playerUi.findViewById(R.id.enter_exit_fullscreen_button);
-        youTubePlayer.addListener(youTubePlayerSeekBar);
+    private void initViews(View view) {
+        View container = view.findViewById(R.id.container);
+        RelativeLayout relativeLayout = view.findViewById(R.id.root);
+        YouTubePlayerSeekBar seekBar = view.findViewById(R.id.playerSeekbar);
+        ImageButton pausePlay = view.findViewById(R.id.pausePlay);
+        ImageButton fullScreen = view.findViewById(R.id.toggleFullScreen);
+        youTubePlayer.addListener(seekBar);
 
-        youTubePlayerSeekBar.setYoutubePlayerSeekBarListener(new YouTubePlayerSeekBarListener() {
+        seekBar.setYoutubePlayerSeekBarListener(new YouTubePlayerSeekBarListener() {
             @Override
-            public void seekTo(float time) {
-                youTubePlayer.seekTo(time);
+            public void seekTo(float v) {
+                youTubePlayer.seekTo(v);
             }
         });
 
-        playPauseButton.setOnClickListener((view) -> {
-            if (playerTracker.getState() == PlayerConstants.PlayerState.PLAYING) {
-                playPauseButton.setImageResource(R.drawable.baseline_play_circle_filled_24);
-                youTubePlayer.pause();
-            } else {
-                playPauseButton.setImageResource(R.drawable.baseline_pause_circle_filled_24);
-                youTubePlayer.play();
+        pausePlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (playerTracker.getState() == PlayerConstants.PlayerState.PLAYING) {
+                    pausePlay.setImageResource(R.drawable.baseline_play_circle_filled_24);
+                    youTubePlayer.pause();
+                } else {
+                    pausePlay.setImageResource(R.drawable.baseline_pause_circle_filled_24);
+                    youTubePlayer.play();
+                }
             }
         });
 
-        enterExitFullscreenButton.setOnClickListener((view) -> {
-            if (fullscreen) youTubePlayerView.wrapContent();
-            else youTubePlayerView.matchParent();
-
-            fullscreen = !fullscreen;
+        fullScreen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isFullScreen) {
+                    youTubePlayerView.wrapContent();
+                } else {
+                    youTubePlayerView.matchParent();
+                }
+                isFullScreen = !isFullScreen;
+            }
         });
 
-        FadeViewHelper fadeViewHelper = new FadeViewHelper(panel);
+        FadeViewHelper fadeViewHelper = new FadeViewHelper(container);
         fadeViewHelper.setAnimationDuration(FadeViewHelper.DEFAULT_ANIMATION_DURATION);
         fadeViewHelper.setFadeOutDelay(FadeViewHelper.DEFAULT_FADE_OUT_DELAY);
         youTubePlayer.addListener(fadeViewHelper);
@@ -76,33 +83,11 @@ public class CustomPlayerUiController extends AbstractYouTubePlayerListener {
             }
         });
 
-        panel.setOnClickListener(new View.OnClickListener() {
+        container.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 fadeViewHelper.toggleVisibility();
             }
         });
-    }
-
-    @Override
-    public void onReady(@NonNull YouTubePlayer youTubePlayer) {
-
-    }
-
-    @Override
-    public void onStateChange(@NonNull YouTubePlayer youTubePlayer, @NonNull PlayerConstants.PlayerState state) {
-
-    }
-
-    @SuppressLint("SetTextI18n")
-    @Override
-    public void onCurrentSecond(@NonNull YouTubePlayer youTubePlayer, float second) {
-
-    }
-
-    @SuppressLint("SetTextI18n")
-    @Override
-    public void onVideoDuration(@NonNull YouTubePlayer youTubePlayer, float duration) {
-
     }
 }
